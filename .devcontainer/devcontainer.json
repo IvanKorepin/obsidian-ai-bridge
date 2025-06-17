@@ -1,0 +1,28 @@
+{
+    "name": "Obsidian to Perplexity Proxy Dev",
+    "dockerComposeFile": [
+        "../docker-compose.dev.yml"
+    ],
+    "service": "proxy",
+    "workspaceFolder": "/app",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "python.pythonPath": "/usr/local/bin/python",
+                "github.copilot.enableEditingCommands": true,
+                "github.copilot.enableChat": true,
+                "http.proxy": "http://172.17.0.1:3128",
+                "http.proxyStrictSSL": false
+            },
+            "extensions": [
+                "github.copilot",
+                "github.copilot-chat",
+                "ms-python.python",
+                "ms-python.vscode-python-envs",
+                "ms-python.vscode-pylance",
+                "ms-python.debugpy"
+            ]
+        }
+    },
+    "postCreateCommand": "pip install -r requirements.txt"
+}
