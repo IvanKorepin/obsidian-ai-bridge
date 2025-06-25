@@ -4,12 +4,23 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import datetime
 import httpx
+import toml
 
 # Load environment variables
 if os.path.exists('.env'):
     load_dotenv('.env', override=True)
 
-ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', '*').split(',')
+# Load config from config.toml
+CONFIG_PATH = os.getenv('CONFIG_PATH', 'config.toml')
+if os.path.exists(CONFIG_PATH):
+    config = toml.load(CONFIG_PATH)
+    SERVER_PORT = config.get('server', {}).get('port', 8000)
+    ALLOWED_ORIGINS = config.get('server', {}).get('allowed_origins', ['*'])
+    PERPLEXITY_API_URL = config.get('server', {}).get('perplexity_api_url', None)
+else:
+    SERVER_PORT = 8000
+    ALLOWED_ORIGINS = ['*']
+    PERPLEXITY_API_URL = None
 
 app = FastAPI()
 
@@ -35,7 +46,7 @@ async def proxy_request(path: str, request: Request):
     clean_headers = {k: v for k, v in headers.items() if k.lower() not in cors_headers}
     body = await request.body()
     # Get base Perplexity API URL
-    perplexity_url = os.getenv('PERPLEXITY_API_URL')
+    perplexity_url = PERPLEXITY_API_URL
     if not perplexity_url:
         return Response(content="PERPLEXITY_API_URL is not set", status_code=500)
     url = perplexity_url  # Do not append path
@@ -61,3 +72,11 @@ async def proxy_request(path: str, request: Request):
 
     # Return Perplexity response to the client (as JSON)
     return Response(content=resp.content, status_code=resp.status_code, media_type=resp.headers.get('content-type', 'application/json'))
+
+if __name__ == "__main__":
+    import sys
+    import uvicorn
+    config_path = sys.argv[1] if len(sys.argv) > 1 else 'config.toml'
+    app = create_app(config_path)
+    port = getattr(app.state, 'port', 8000)
+    uvicorn.run(app, host="0.0.0.0", port=port)

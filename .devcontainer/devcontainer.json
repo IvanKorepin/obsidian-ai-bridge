@@ -1,22 +1,24 @@
 {
     "name": "Obsidian to Perplexity Proxy Dev",
-    "dockerComposeFile": [
-        "../docker-compose.dev.yml"
-    ],
-    "service": "proxy",
+    "dockerFile": "Dockerfile",
+    "context": "..",
     "workspaceFolder": "/app",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached",
+    "runArgs": ["-p", "8080:8080"],
     "customizations": {
         "vscode": {
             "settings": {
                 "python.pythonPath": "/usr/local/bin/python",
                 "github.copilot.enableEditingCommands": true,
                 "github.copilot.enableChat": true,
+                // Next lines are necceesary to use Copilot in a container with a proxy
                 "http.proxy": "http://172.17.0.1:3128",
                 "http.proxyStrictSSL": false
             },
             "extensions": [
                 "github.copilot",
                 "github.copilot-chat",
+                "github.vscode-pull-request-github",
                 "ms-python.python",
                 "ms-python.vscode-python-envs",
                 "ms-python.vscode-pylance",
@@ -24,5 +26,9 @@
             ]
         }
     },
-    "postCreateCommand": "pip install -r requirements.txt"
+    "postCreateCommand": "pip install -r requirements.txt",
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.gitconfig,target=/root/.gitconfig,type=bind,consistency=cached"
+    ]
 }

@@ -1,5 +1,6 @@
 fastapi
-uvicorn[standard]
 httpx
-dotenv
-debugpy
+python-dotenv
+toml
+uvicorn
+click

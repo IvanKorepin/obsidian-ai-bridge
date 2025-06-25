@@ -1,0 +1,16 @@
+# Default configuration file for obsidian2perplexity
+
+[routing]
+# The API endpoint for Perplexity's chat completions.
+PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
+
+# Specifies the origins allowed for CORS requests, ensuring compatibility between Obsidian and Perplexity.
+ALLOWED_ORIGINS = "app://obsidian.md"
+
+[server]
+host = "0.0.0.0"
+port = 8080
+# Example parameters:
+# TIMEOUT = 30                  # Timeout duration for API requests in seconds.
+# LOG_LEVEL = "info"            # Logging level (e.g., debug, info, warning, error).
+# Other parameters, e.g., API keys, etc.
