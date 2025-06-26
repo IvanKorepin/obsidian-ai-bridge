@@ -27,6 +27,9 @@ setup(
             "obsidian2perplexity=obsidian2perplexity.cli:main"
         ]
     },
+    package_data={
+        "obsidian2perplexity": ["config.default.toml"],
+    },
     include_package_data=True,
     python_requires=">=3.8",
 )

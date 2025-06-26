@@ -12,9 +12,9 @@ RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # installation tools for building and publication a Python package
-RUN pip install --no-cache-dir setuptools wheel twine
+RUN pip install --no-cache-dir setuptools wheel twine build
 
-EXPOSE 8080
+EXPOSE 6667
 
 #COPY . .
 

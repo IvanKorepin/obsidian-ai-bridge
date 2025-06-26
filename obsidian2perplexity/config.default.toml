@@ -8,9 +8,13 @@ PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
 ALLOWED_ORIGINS = "app://obsidian.md"
 
 [server]
-host = "0.0.0.0"
-port = 8000
-# Example parameters:
-# TIMEOUT = 30                  # Timeout duration for API requests in seconds.
-# LOG_LEVEL = "info"            # Logging level (e.g., debug, info, warning, error).
-# Other parameters, e.g., API keys, etc.
+# The host address the server will bind to. Use "0.0.0.0" to listen on all interfaces.
+HOST = "0.0.0.0"
+# The port number the server will listen on.
+PORT = 8000
+
+# Path to SSL certificate file (PEM format) for HTTPS support.
+# Uncomment these rows for using uvicorn with SSL.
+# SSL_CERTFILE = "/path/to/fullchain.pem"
+# Path to SSL private key file (PEM format) for HTTPS support.
+# SSL_KEYFILE = "/path/to/privkey.pem"

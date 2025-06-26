@@ -4,7 +4,7 @@
     "context": "..",
     "workspaceFolder": "/app",
     "workspaceMount": "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached",
-    "runArgs": ["-p", "8080:8080"],
+    "runArgs": ["-p", "8787:8787"],
     "customizations": {
         "vscode": {
             "settings": {

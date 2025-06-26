@@ -17,13 +17,17 @@ def create_app(config_path=None):
         allowed_origins = routing_cfg.get('ALLOWED_ORIGINS', ['*'])
         perplexity_api_url = routing_cfg.get('PERPLEXITY_API_URL', None)
         server_cfg = config.get('server', {})
-        host = server_cfg.get('host', 'localhost')
-        port = server_cfg.get('port', 8000)
+        host = server_cfg.get('HOST', 'localhost')
+        port = server_cfg.get('PORT', 8000)
+        ssl_cert = server_cfg.get('SSL_CERTFILE', None)
+        ssl_key = server_cfg.get('SSL_KEYFILE', None)
     else:
         allowed_origins = ['*']
         perplexity_api_url = None
         host = 'localhost'  
         port = 8000
+        ssl_cert = None
+        ssl_key = None
     app = FastAPI()
     app.add_middleware(
         CORSMiddleware,
@@ -35,10 +39,13 @@ def create_app(config_path=None):
     app.state.perplexity_api_url = perplexity_api_url
     app.state.host = host
     app.state.port = port
+    app.state.ssl_cert = ssl_cert
+    app.state.ssl_key = ssl_key
+
     return app
 
 def register_routes(app: FastAPI):
-    @app.api_route("/proxy/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
+    @app.api_route("{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
     async def proxy_request(path: str, request: Request):
         method = request.method
         headers = dict(request.headers)
