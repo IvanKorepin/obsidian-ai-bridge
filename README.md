@@ -1,13 +1,18 @@
 # Obsidian to Perplexity Proxy
 
-A Python-based proxy server that relays requests from Obsidian to Perplexity, handling CORS issues. The project is containerized with Docker and supports both local development and production deployment. Designed for local use and deployment via GitHub Actions.
+**Works with the [Obsidian Copilot plugin](https://github.com/logancyang/obsidian-copilot).**
+
+**Русская версия:** [README.rus.md](README.rus.md)
+
+**Note:** This utility only rewrites HTTP headers to bypass CORS. It does not read, store, or analyze the request body, and does not collect or retain any data from requests.
+
+A Python-based proxy server that relays requests from Obsidian to Perplexity, handling CORS issues. The project is containerized with Docker and supports both local development and production deployment.
 
 ## Features
 - FastAPI-based proxy for Perplexity API
 - Handles CORS for Obsidian integration
 - Configurable via TOML file (dev/prod)
 - Docker and devcontainer support
-- Ready for CI/CD with GitHub Actions
 
 ## Installation
 
@@ -17,6 +22,8 @@ pip install obsidian2perplexity
 ```
 
 After installation, the command `obsidian2perplexity` will be available in your terminal.
+
+> **See [docs/configuration.md](docs/configuration.md) for platform-specific installation and usage instructions (Linux, Windows, macOS, Docker, devcontainer, systemd, etc).**
 
 ## Quick Start (Local)
 
@@ -56,7 +63,7 @@ After installation, the command `obsidian2perplexity` will be available in your 
    ```bash
    python -m obsidian2perplexity.cli --host 0.0.0.0 --port 8080
    ```
-   или используйте entrypoint:
+   or use the entrypoint:
    ```bash
    obsidian2perplexity --host 0.0.0.0 --port 8080
    ```
@@ -69,7 +76,6 @@ The proxy is configured via a TOML file (by default `config.default.toml`). Exam
 [routing]
 # The API endpoint for Perplexity's chat completions.
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
-
 # Specifies the origins allowed for CORS requests, ensuring compatibility between Obsidian and Perplexity.
 ALLOWED_ORIGINS = "app://obsidian.md"
 
@@ -84,9 +90,32 @@ port = 8080
 - **[server]**: server launch parameters (host, port, etc.).
 - You can create separate files for dev/prod environments.
 
-## Deployment
-- Ready for GitHub Actions CI/CD (see `.github/workflows/` if present).
+## Configuration Documentation
+- [docs/configuration.md](docs/configuration.md)
 
 ## License
 MIT
+
+## Uninstallation
+
+To remove the utility:
+
+- **pip (any OS):**
+  ```bash
+  pip uninstall obsidian2perplexity
+  ```
+- **Docker:**
+  - Remove the image:
+    ```bash
+    docker rmi obsidian2perplexity
+    ```
+  - Remove containers (if any):
+    ```bash
+    docker ps -a | grep obsidian2perplexity
+    docker rm <container_id>
+    ```
+- **Devcontainer (VS Code):**
+  - Remove the devcontainer from the VS Code UI or delete the `.devcontainer` folder.
+
+For more details, see your platform's package and container management documentation.
 
