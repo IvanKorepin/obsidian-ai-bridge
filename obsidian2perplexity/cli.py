@@ -18,7 +18,7 @@ def find_default_config():
 @click.command()
 @click.argument("config_path", required=False, default='')
 @click.option('--host', default= None, help='Host to bind.')
-@click.option('--port', default= None, help='Port to run on.')
+@click.option('--port', default= None, type=int, help='Port to run on.')
 @click.option('--ssl-cert', default=None, help='Path to SSL certificate file.')
 @click.option('--ssl-key', default=None, help='Path to SSL key file.')
 def main(host, port, config_path, ssl_cert, ssl_key):

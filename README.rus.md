@@ -1,18 +1,26 @@
-# Obsidian to Perplexity Proxy
+<h1 style="text-align: center;"> Obsidian to Perplexity Proxy </h1>
 
 **Работает совместно с плагином [Obsidian Copilot](https://github.com/logancyang/obsidian-copilot).**
 
 **English version:** [README.md](README.md)
 
+## Что оно делает
+
+Плагин Copilot для Obsidian позволяет подключаться к API многих популярных AI-сервисов, таких как OpenAI, Gemini, DeepSeek и другие. Естественно, при условии, что у вас есть подписка на эти модели и соответсвующие API-токены.
+К сожалению, плагин не поддерживает популярный сервис Perplexity.
+Obsidian2Perplexity решает эту проблему. O2P это простой и легкий прокси-сервер, который встает между Obsidian-Copilot и Perplexity преобразует заголовки Ваших https-запросов, так, чтобы их понимал Perplexity API и возвращает ответы.
+
+O2P может быть развернут на вашем сервере или хостинге и обеспечивать подключение с любых устройств, либо на вашем компьютере, где запущен Obsidian. 
+
 > **Внимание к приватности:** Утилита лишь изменяет заголовки запросов и не читает, не собирает и не хранит содержимое тела запросов. Никакие пользовательские данные не логируются и не сохраняются.
 
-Python-прокси для пересылки запросов от Obsidian к Perplexity с поддержкой CORS. Проект контейнеризован (Docker), поддерживает локальную разработку и продакшн.
-
 ## Возможности
-- Прокси на FastAPI для Perplexity API
+- Установка на сервером или локальной машине
+- Работа совместно с reverse proxy или без него
+- Поддержка SSL
 - Корректная работа CORS для интеграции с Obsidian
-- Гибкая настройка через TOML-файл (dev/prod)
-- Поддержка Docker и devcontainer
+- Гибкая настройка через TOML-файл
+- Поддержка Docker и devcontainer для разработки
 
 ## Установка
 
@@ -23,75 +31,57 @@ pip install obsidian2perplexity
 
 После установки команда `obsidian2perplexity` будет доступна в терминале.
 
-> **См. [docs/configuration.rus.md](docs/configuration.rus.md) для инструкций по установке и запуску на разных платформах (Linux, Windows, macOS, Docker, devcontainer, systemd и др.).**
-
 ## Быстрый старт (локально)
 
-1. **Установите пакет:**
+1. Установите пакет:
    ```bash
    pip install obsidian2perplexity
    ```
-2. **Подготовьте конфиг:**
-   Поместите `config.default.toml` в рабочую директорию или укажите путь к нему как позиционный аргумент:
-   ```bash
-   obsidian2perplexity config.default.toml
-   ```
-3. **Запустите сервер:**
-   ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080
-   ```
-   По умолчанию утилита ищет `config.default.toml` в текущей директории или в пакете.
 
-## Использование с Docker
-
-1. **Соберите образ:**
+2. Запустите сервер:
    ```bash
-   docker build -t obsidian2perplexity .
-   ```
-2. **Запустите контейнер:**
-   ```bash
-   docker run -p 8080:8080 obsidian2perplexity
-   ```
-   Можно смонтировать свой конфиг:
-   ```bash
-   docker run -p 8080:8080 -v $(pwd)/config.default.toml:/app/config.default.toml obsidian2perplexity
+   obsidian2perplexity --host 127.0.0.1 --port 8787
    ```
 
-## Devcontainer
+> См. [инструкцию](docs/configuration.rus.md) для более тонкой установке и настройке в разных окружениях (Linux, Windows, macOS, Docker, devcontainer).
 
-1. **Откройте проект в VS Code.**
-2. **Reopen in Container** через "Remote - Containers".
-3. **Devcontainer автоматически установит зависимости и подготовит окружение.**
-4. **Запуск сервера внутри devcontainer:**
-   ```bash
-   python -m obsidian2perplexity.cli --host 0.0.0.0 --port 8080
-   ```
-   или используйте entrypoint:
-   ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080
+3. Установите плагин Copilot для Obsidian согласно [официальной документации](https://github.com/logancyang/obsidian-copilot)
+
+4. Перейдите в настройки плагина
+![Переход в настройки](/docs/img/copilot_configure_step1_rus.png)
+
+5. Перейдите на вкладку 
+![Вкладка Model](/docs/img/copilot_configure_step2_rus.png)
+
+6. Прокурутите страницу несного вниз до конца предустановленных моделей
+
+7. Нажмите кнопку "Add custom model"
+![Вкладка Model](/docs/img/copilot_configure_step3_rus.png)
+
+8. Заполните форму
+![Форма Model](/docs/img/copilot_configure_step4.png)
+   1) Название модели Perplexity ([Список доступных моделей по мнению саого Perplexity](https://www.perplexity.ai/search/kakie-modeli-podderzhivaet-api-MCb_.seRSF2SbY91Wh6QjQ))
+   2) Выберете пункт "Open AI Format"
+   3) Параметры хоста, на котором развернут Obsidian2Perplexity
+      3.1) Для локальной установки ```http://localhost:8787/```
+      3.2) Для установки на сервере ```https://YOUR_IP_ADDRESS:8787```
+
+      > **Примечание 1:** Адрес хоста и порт можно задать при запуске утилиты ```obsidian2perplexity --host YOUR_IP --port YOUR_PORT```
+
+      > **Примечание 2:** Убедитесь, что выбранный прот открыт для подключения.
+      
+   4) Введите Ваш API-token от вашего аккаунта Perplexity
+
+   5) Установите галочку "Enable CORS" 
+   6) Нажмите на кнопку "Verify", чтобы убедиться, что все работает. Если все настроено верно, то в углу экрана появится сообщение об успешном подключении
+   ![Успешное подключение](/docs/img/copilot_configure_success.png)
+
+   Поздравляю! Теперь ваша система успешно настроена
    ```
 
 ## Конфигурация
 
 См. подробное [руководство по настройке](docs/configuration.rus.md) с примерами и вариантами использования.
-
-Прокси настраивается через TOML-файл (по умолчанию `config.default.toml`). Пример:
-
-```toml
-[routing]
-PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions" # URL API Perplexity (обычно менять не требуется)
-ALLOWED_ORIGINS = "app://obsidian.md" # Разрешённые источники для CORS (обычно менять не требуется)
-
-[server]
-HOST = "0.0.0.0"
-PORT = 8080
-# SSL_CERTFILE = "/path/to/fullchain.pem"
-# SSL_KEYFILE = "/path/to/privkey.pem"
-```
-
-- **[routing]**: настройки маршрутизации и CORS.
-- **[server]**: параметры запуска сервера (host, port и др.).
-- Можно создавать отдельные файлы для dev/prod окружений.
 
 ## Лицензия
 MIT
@@ -102,17 +92,5 @@ MIT
   ```bash
   pip uninstall obsidian2perplexity
   ```
-- **Docker:**
-  - Удалить образ:
-    ```bash
-    docker rmi obsidian2perplexity
-    ```
-  - Удалить контейнеры (если есть):
-    ```bash
-    docker ps -a | grep obsidian2perplexity
-    docker rm <container_id>
-    ```
-- **Devcontainer (VS Code):**
-  - Удалите devcontainer через интерфейс VS Code или удалите папку `.devcontainer`.
 
 Подробнее см. документацию по управлению пакетами и контейнерами вашей платформы.

@@ -11,7 +11,7 @@
                 "python.pythonPath": "/usr/local/bin/python",
                 "github.copilot.enableEditingCommands": true,
                 "github.copilot.enableChat": true,
-                // Next lines are necceesary to use Copilot in a container with a proxy
+                // Next lines are necceesary to use Copilot in a container with a proxy in you need
                 "http.proxy": "http://172.17.0.1:3128",
                 "http.proxyStrictSSL": false
             },

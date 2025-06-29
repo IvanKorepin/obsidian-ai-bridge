@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # installation tools for building and publication a Python package
 RUN pip install --no-cache-dir setuptools wheel twine build
 
-EXPOSE 6667
+EXPOSE 8787
 
 #COPY . .
 

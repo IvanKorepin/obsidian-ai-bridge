@@ -8,11 +8,11 @@
    ```
    Если вы не указываете эти параметры, будут использованы значения из конфигурационного файла или значения по умолчанию.
 
-2. **Через конфигурационный файл**: создайте файл `config.default.toml` (или `config.dev.toml`) в рабочей директории. Путь к файлу можно указать как позиционный аргумент после названия пакета:
+2. **Через конфигурационный файл**: создайте файл `config.toml` (или `config.dev.toml`) в рабочей директории. Путь к файлу можно указать как позиционный аргумент после названия пакета:
    ```bash
    obsidian2perplexity config.default.toml
    ```
-   Если путь не указан, утилита будет искать `config.default.toml` в текущей директории и в директории пакета.
+   Если путь не указан, утилита будет искать `config.toml` в текущей директории и в директории пакета.
 
    Пример шаблона:
    ```toml
@@ -31,9 +31,13 @@
 
 ## 1. Запуск на удалённом сервере без SSL (через reverse proxy, например, Nginx)
 
-- **Рекомендуется для продакшена.**
-- Прокси работает только по HTTP, а SSL-терминация осуществляется через внешний reverse proxy (например, Nginx).
-- Пример конфига Nginx:
+**Рекомендуется для продакшена.** 
+
+Этот метод является наиболее безопасным т.к., с одной стороны, он использует шифрование SSL, а с другой - не требует предоставлять приложению obsidian2perplexity доступ к вашему сертификату и закрытому ключу SSL.
+
+Прокси работает только по HTTP, а SSL-терминация осуществляется через внешний reverse proxy (например, Nginx).
+
+Пример конфига Nginx:
 
 ```nginx
 server {
@@ -44,7 +48,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/ваш-домен.рф/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8080;  # или ваш порт прокси
+        proxy_pass http://127.0.0.1:8787;  # укажите здесь порт, на который настроен obsidian2perplexity
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -52,29 +56,30 @@ server {
     }
 }
 ```
-- Запуск прокси без SSL:
+### Запуск прокси без SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8080
+  obsidian2perplexity --host 127.0.0.1 --port 8787 # Укажите здесь порт, на который настроен Ваш reverse proxy
   ```
 
 ## 2. Запуск на удалённом сервере с SSL (без reverse proxy)
 
-- Прокси сам обрабатывает HTTPS-соединения.
-- Необходимо указать пути к SSL-сертификату и приватному ключу (PEM) и убедиться, что пользователь, от имени которого запускается утилита, имеет права на чтение этих файлов.
-- **Внимание:** запуск прокси с прямым доступом к SSL-сертификатам менее безопасен, чем через reverse proxy. Используйте только если понимаете риски.
-- Пример:
+Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
+Необходимо указать пути к SSL-сертификату и приватному ключу (PEM) и убедиться, что пользователь, от имени которого запускается утилита, имеет права на чтение этих файлов.
+
+**Внимание:** запуск прокси с прямым доступом к SSL-сертификатам менее безопасен, чем через reverse proxy. Используйте только если понимаете риски.
+Пример:
   ```bash
-  obsidian2perplexity --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+  obsidian2perplexity --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
   ```
-- Проверьте, что файлы сертификата и ключа доступны на чтение пользователю, запускающему прокси.
+Проверьте, что файлы сертификата и ключа доступны на чтение пользователю, запускающему прокси.
 
 ## 3. Установка на локальной машине (там же, где Obsidian)
 
-- Для локального использования можно запускать прокси без SSL:
+Для локального использования можно запускать прокси без SSL:
   ```bash
   obsidian2perplexity --host 127.0.0.1 --port 8080
   ```
-- В настройках плагина Obsidian AI укажите endpoint: `http://127.0.0.1:8080`
+В настройках плагина Copilot на шаге 8 укажите endpoint: `http://127.0.0.1:8787`
 
 ---
 
@@ -93,7 +98,10 @@ server {
    After=network.target
 
    [Service]
-   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8080
+
+   # Пример запуска на адресе http://127.0.0.1:8787
+   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8787
+
    Restart=always
    User=youruser
 
@@ -135,7 +143,7 @@ server {
            <string>--host</string>
            <string>127.0.0.1</string>
            <string>--port</string>
-           <string>8080</string>
+           <string>8787</string>
        </array>
        <key>RunAtLoad</key>
        <true/>
@@ -146,6 +154,103 @@ server {
    ```bash
    launchctl load ~/Library/LaunchAgents/com.obsidian2perplexity.proxy.plist
    ```
+
+---
+
+### Важно для пользователей macOS
+
+Привязка (bind) к адресам вроде `127.0.0.3` и других отличных от `127.0.0.1` на macOS не работает по умолчанию, даже если добавить их в `/etc/hosts`. Система поддерживает только `127.0.0.1` (loopback) и `0.0.0.0` (все интерфейсы).
+
+**Рекомендуется:**
+- Используйте `--host 127.0.0.1` для локального доступа
+- Или `--host 0.0.0.0` для прослушивания на всех интерфейсах
+
+Пример:
+```bash
+obsidian2perplexity --host 127.0.0.1 --port 8787
+```
+
+Добавление `127.0.0.3` в `/etc/hosts` влияет только на DNS, но не делает адрес доступным для bind.
+
+
+### Установка в Docker 
+1. **Склонируйте репозиторий или скачайте образ:**
+   - Для локальной сборки:
+     ```bash
+     git clone https://github.com/IvanKorepin/obsidian2perplexity.git
+     cd obsidian2perplexity
+     docker build -t obsidian2perplexity .
+     ```
+
+2. **Создайте файл конфигурации (опционально):**
+   - Поместите `config.toml` или `config.dev.toml` в удобную директорию на вашей машине.
+
+3. **Запустите контейнер:**
+   - Для продакшена (пример с монтированием конфига и пробросом порта):
+     ```bash
+     docker run -d \
+       --name obsidian2perplexity \
+       -p 8787:8787 \
+       -v /path/to/config.toml:/app/config.toml \
+       obsidian2perplexity
+     ```
+   - Для разработки (с live reload, если поддерживается):
+     ```bash
+     docker-compose -f docker-compose.dev.yml up
+     ```
+   - Можно указать параметры запуска напрямую:
+     ```bash
+     docker run -d \
+       --name obsidian2perplexity \
+       -p 8080:8080 \
+       obsidian2perplexity --host 0.0.0.0 --port 8080
+     ```
+
+4. **Проверьте работу:**
+   - Откройте в браузере: [http://localhost:8787](http://localhost:8787) (или порт, который указали).
+
+**Примечания:**
+- Для SSL-сертификатов используйте volume-монтирование:
+  ```bash
+  -v /path/to/fullchain.pem:/app/fullchain.pem
+  -v /path/to/privkey.pem:/app/privkey.pem
+  ```
+  и добавьте параметры `--ssl-cert /app/fullchain.pem --ssl-key /app/privkey.pem` к команде запуска.
+- Для настройки переменных окружения используйте флаг `--env-file` или `-e`.
+
+**Пример docker-compose.yml:**
+```yaml
+version: "3"
+services:
+  obsidian2perplexity:
+    image: obsidian2perplexity
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config.toml:/app/config.toml
+    restart: unless-stopped
+```
+
+## Запуск и отладка в Devcontainer
+
+Если вы используете [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (например, через VS Code), настройка и запуск obsidian2perplexity для разработки и отладки максимально упрощены:
+
+1. **Откройте проект в VS Code** — при наличии `.devcontainer` папки редактор предложит открыть проект в контейнере.
+2. **Devcontainer автоматически установит зависимости** и активирует виртуальное окружение.
+3. **Запуск сервера для отладки:**
+   - Откройте терминал внутри контейнера.
+   - Запустите сервер с live reload (если поддерживается):
+     ```bash
+     uvicorn obsidian2perplexity.main:app --reload --host 0.0.0.0 --port 8787
+     ```
+     или используйте вашу команду запуска.
+   - Для передачи переменных окружения или конфигов используйте volume-монтирование или `.env` файлы.
+4. **Проброс портов:**  
+   Devcontainer автоматически пробрасывает порты, указанные в `.devcontainer/devcontainer.json` (например, 8787). Вы сможете открыть сервер в браузере хоста по адресу [http://localhost:8787](http://localhost:8787).
+5. **Отладка кода:**  
+   Можно использовать встроенный отладчик VS Code для Python — установите breakpoint и запустите отладочную сессию.
+
+
 
 ## Удаление утилиты
 

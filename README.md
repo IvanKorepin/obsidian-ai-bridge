@@ -1,121 +1,97 @@
-# Obsidian to Perplexity Proxy
+<h1 style="text-align: center;"> Obsidian to Perplexity Proxy </h1>
 
 **Works with the [Obsidian Copilot plugin](https://github.com/logancyang/obsidian-copilot).**
 
-**Русская версия:** [README.rus.md](README.rus.md)
+**Russian version:** [README.rus.md](README.rus.md)
 
-**Note:** This utility only rewrites HTTP headers to bypass CORS. It does not read, store, or analyze the request body, and does not collect or retain any data from requests.
+## What it does
 
-A Python-based proxy server that relays requests from Obsidian to Perplexity, handling CORS issues. The project is containerized with Docker and supports both local development and production deployment.
+The Copilot plugin for Obsidian allows you to connect to APIs of many popular AI services, such as OpenAI, Gemini, DeepSeek, and others. Naturally, provided that you have a subscription to these models and the corresponding API tokens.
+Unfortunately, the plugin does not support the popular Perplexity service.
+Obsidian2Perplexity solves this problem. O2P is a simple and lightweight proxy server that sits between Obsidian-Copilot and Perplexity, transforming the headers of your HTTPS requests so that they are understood by the Perplexity API and returns responses.
+
+O2P can be deployed on your server or hosting and provide connection from any device, or on your computer where Obsidian is running.
+
+> **Privacy Notice:** The utility only modifies request headers and does not read, collect, or store the request body content. No user data is logged or saved.
 
 ## Features
-- FastAPI-based proxy for Perplexity API
+- Installation on server or local machine
+- Works with or without reverse proxy
+- SSL support
 - Handles CORS for Obsidian integration
-- Configurable via TOML file (dev/prod)
-- Docker and devcontainer support
+- Configurable via TOML file
+- Docker and devcontainer support for development
 
 ## Installation
 
-You can install the utility directly from PyPI:
+Install the utility from PyPI:
 ```bash
 pip install obsidian2perplexity
 ```
 
 After installation, the command `obsidian2perplexity` will be available in your terminal.
 
-> **See [docs/configuration.md](docs/configuration.md) for platform-specific installation and usage instructions (Linux, Windows, macOS, Docker, devcontainer, systemd, etc).**
-
 ## Quick Start (Local)
 
-1. **Install the package:**
+1. Install the package:
    ```bash
    pip install obsidian2perplexity
    ```
-2. **Prepare configuration:**
-   Place your `config.default.toml` in the current directory or specify its path with the `--config-path` option.
-3. **Run the server:**
-   ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080
-   ```
-   By default, the server will look for `config.default.toml` in the current directory or package.
 
-## Docker Usage
-
-1. **Build the image:**
+2. Run the server:
    ```bash
-   docker build -t obsidian2perplexity .
-   ```
-2. **Run the container:**
-   ```bash
-   docker run -p 8080:8080 obsidian2perplexity
-   ```
-   You can mount your config file if needed:
-   ```bash
-   docker run -p 8080:8080 -v $(pwd)/config.default.toml:/app/config.default.toml obsidian2perplexity
+   obsidian2perplexity --host 127.0.0.1 --port 8787
    ```
 
-## Devcontainer Usage
+> See [documentation](docs/configuration.md) for more detailed installation and configuration instructions for different environments (Linux, Windows, macOS, Docker, devcontainer).
 
-1. **Open the project in VS Code.**
-2. **Reopen in Container** using the "Remote - Containers" extension.
-3. **The devcontainer will automatically install dependencies and set up the environment.**
-4. **To run the server inside the devcontainer:**
-   ```bash
-   python -m obsidian2perplexity.cli --host 0.0.0.0 --port 8080
-   ```
-   or use the entrypoint:
-   ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080
-   ```
+3. Install the Copilot plugin for Obsidian according to the [official documentation](https://github.com/logancyang/obsidian-copilot)
 
-## Configuration File
+4. Go to plugin settings
+![Go to settings](/docs/img/copilot_configure_step1_eg.png)
 
-The proxy is configured via a TOML file (by default `config.default.toml`). Example:
+5. Go to the Model tab
+![Model tab](/docs/img/copilot_configure_step2_eng.png)
 
-```toml
-[routing]
-# The API endpoint for Perplexity's chat completions.
-PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
-# Specifies the origins allowed for CORS requests, ensuring compatibility between Obsidian and Perplexity.
-ALLOWED_ORIGINS = "app://obsidian.md"
+6. Scroll down to the end of the pre-installed models
 
-[server]
-host = "0.0.0.0"
-port = 8080
-# TIMEOUT = 30                  # Timeout duration for API requests in seconds.
-# LOG_LEVEL = "info"            # Logging level (e.g., debug, info, warning, error).
-```
+7. Click the "Add custom model" button
+![Model tab](/docs/img/copilot_configure_step3_eng.png)
 
-- **[routing]**: routing and CORS settings.
-- **[server]**: server launch parameters (host, port, etc.).
-- You can create separate files for dev/prod environments.
+8. Fill out the form
+![Model form](/docs/img/copilot_configure_step4.png)
+   1) Perplexity model name ([List of available models according to Perplexity](https://www.perplexity.ai/search/what-models-does-the-perplexity-api-support-MCb_.seRSF2SbY91Wh6QjQ))
+   2) Select "Open AI Format"
+   3) Host parameters where Obsidian2Perplexity is deployed
+      3.1) For local installation ```http://localhost:8787/```
+      3.2) For server installation ```https://YOUR_IP_ADDRESS:8787```
 
-## Configuration Documentation
-- [docs/configuration.md](docs/configuration.md)
+      > **Note 1:** Host address and port can be set when launching the utility ```obsidian2perplexity --host YOUR_IP --port YOUR_PORT```
+
+      > **Note 2:** Make sure the selected port is open for connections.
+      
+   4) Enter your API token from your Perplexity account
+
+   5) Check "Enable CORS"
+   6) Click "Verify" to make sure everything works. If configured correctly, a success message will appear in the corner of the screen
+   ![Successful connection](/docs/img/copilot_configure_success.png)
+
+   Congratulations! Your system is now successfully configured
+
+## Configuration
+
+See detailed [configuration guide](docs/configuration.md) with examples and usage scenarios.
 
 ## License
 MIT
 
 ## Uninstallation
 
-To remove the utility:
-
 - **pip (any OS):**
   ```bash
   pip uninstall obsidian2perplexity
   ```
-- **Docker:**
-  - Remove the image:
-    ```bash
-    docker rmi obsidian2perplexity
-    ```
-  - Remove containers (if any):
-    ```bash
-    docker ps -a | grep obsidian2perplexity
-    docker rm <container_id>
-    ```
-- **Devcontainer (VS Code):**
-  - Remove the devcontainer from the VS Code UI or delete the `.devcontainer` folder.
+
 
 For more details, see your platform's package and container management documentation.
 

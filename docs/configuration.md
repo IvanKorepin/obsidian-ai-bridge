@@ -1,38 +1,43 @@
 # Configuration Guide for obsidian2perplexity
 
-This document describes several ways to configure the obsidian2perplexity proxy for use with the Obsidian AI plugin.
+obsidian2perplexity has two ways of configuration:
 
-## Configuration File: `config.default.toml`
+1. **Via command line parameters**: you can specify host, port, ssl-cert and ssl-key directly when launching the utility:
+   ```bash
+   obsidian2perplexity --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+   ```
+   If you don't specify these parameters, values from the configuration file or default values will be used.
 
-The proxy is configured via a TOML file, typically named `config.default.toml` or `config.dev.toml`.
+2. **Via configuration file**: create a `config.toml` file (or `config.dev.toml`) in the working directory. The file path can be specified as a positional argument after the package name:
+   ```bash
+   obsidian2perplexity config.default.toml
+   ```
+   If the path is not specified, the utility will search for `config.toml` in the current directory and in the package directory.
 
-- **How to create:**
-  1. Create a file named `config.default.toml` (or `config.dev.toml`) in your working directory.
-  2. Use the following template as a starting point:
-     ```toml
-     [routing]
-     PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
-     ALLOWED_ORIGINS = "app://obsidian.md"
+   Example template:
+   ```toml
+   [routing]
+   PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions" # Perplexity API URL (usually no need to change)
+   ALLOWED_ORIGINS = "app://obsidian.md" # Allowed origins for CORS (usually no need to change)
 
-     [server]
-     HOST = "0.0.0.0"
-     PORT = 8080
-     # SSL_CERTFILE = "/path/to/fullchain.pem"
-     # SSL_KEYFILE = "/path/to/privkey.pem"
-     ```
-- **Where to place:**
-  - Place the config file in the same directory where you run the `obsidian2perplexity` command, or specify its path with the `--config-path` argument.
-  - Example:
-    ```bash
-    obsidian2perplexity config.default.toml
-    ```
-  - If not specified, the utility will search for `config.default.toml` in the current directory and in the package directory.
+   [server]
+   HOST = "0.0.0.0"
+   PORT = 8080
+   # SSL_CERTFILE = "/path/to/fullchain.pem"
+   # SSL_KEYFILE = "/path/to/privkey.pem"
+   ```
+   - **PERPLEXITY_API_URL** — Perplexity API address to which requests will be proxied. Usually no need to change.
+   - **ALLOWED_ORIGINS** — list of allowed origins for CORS (e.g., for working with Obsidian). Usually no need to change.
 
-## 1. running on a Remote Server Without SSL (Using Reverse Proxy, e.g., Nginx)
+## 1. Running on a Remote Server Without SSL (via reverse proxy, e.g., Nginx)
 
-- **Recommended for production.**
-- The proxy runs with HTTP only, and SSL termination is handled by a reverse proxy (such as Nginx).
-- Example Nginx configuration:
+**Recommended for production.**
+
+This method is the most secure because, on one hand, it uses SSL encryption, and on the other hand, it doesn't require giving the obsidian2perplexity application access to your SSL certificate and private key.
+
+The proxy works only via HTTP, and SSL termination is handled by an external reverse proxy (e.g., Nginx).
+
+Example Nginx configuration:
 
 ```nginx
 server {
@@ -43,7 +48,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8080;  # or your proxy port
+        proxy_pass http://127.0.0.1:8787;  # specify the port configured for obsidian2perplexity here
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -51,48 +56,52 @@ server {
     }
 }
 ```
-- Start the proxy without SSL:
+### Start the proxy without SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8080
+  obsidian2perplexity --host 127.0.0.1 --port 8787 # Specify the port configured for your reverse proxy here
   ```
 
 ## 2. Running on a Remote Server With SSL (Without Reverse Proxy)
 
-- The proxy itself handles HTTPS connections.
-- You must provide paths to your SSL certificate and private key (PEM format) and ensure the user running the utility has read access to these files.
-- **Warning:** Running the proxy with direct access to SSL certificates is less secure than using a reverse proxy. Use only if you understand the risks.
-- Example:
+Obsidian2Perplexity itself handles HTTPS connections.
+You must provide paths to your SSL certificate and private key (PEM format) and ensure the user running the utility has read access to these files.
+
+**Warning:** Running the proxy with direct access to SSL certificates is less secure than using a reverse proxy. Use only if you understand the risks.
+Example:
   ```bash
-  obsidian2perplexity --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+  obsidian2perplexity --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
   ```
-- Make sure the certificate and key files are readable by the user running the proxy.
+Make sure the certificate and key files are readable by the user running the proxy.
 
 ## 3. Local Installation (Same Machine as Obsidian)
 
-- For local use, you can run the proxy without SSL:
+For local use, you can run the proxy without SSL:
   ```bash
   obsidian2perplexity --host 127.0.0.1 --port 8080
   ```
-- In the Obsidian AI plugin, set the proxy endpoint to `http://127.0.0.1:8080`.
+In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:8787`
 
 ---
 
 # Installation and Autostart Instructions
 
 ## Linux
-1. **Install:**
+1. **Installation:**
    ```bash
    pip install obsidian2perplexity
    ```
 2. **Autostart (systemd):**
-   Create a file `/etc/systemd/system/obsidian2perplexity.service`:
+   Create file `/etc/systemd/system/obsidian2perplexity.service`:
    ```ini
    [Unit]
    Description=Obsidian2Perplexity Proxy
    After=network.target
 
    [Service]
-   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8080
+
+   # Example launch on address http://127.0.0.1:8787
+   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8787
+
    Restart=always
    User=youruser
 
@@ -107,7 +116,7 @@ server {
    ```
 
 ## Windows
-1. **Install:**
+1. **Installation:**
    ```powershell
    pip install obsidian2perplexity
    ```
@@ -115,7 +124,7 @@ server {
    - Create a shortcut to run `obsidian2perplexity` and place it in the Startup folder, or use Task Scheduler to run the command at login.
 
 ## macOS
-1. **Install:**
+1. **Installation:**
    ```bash
    pip install obsidian2perplexity
    ```
@@ -134,7 +143,7 @@ server {
            <string>--host</string>
            <string>127.0.0.1</string>
            <string>--port</string>
-           <string>8080</string>
+           <string>8787</string>
        </array>
        <key>RunAtLoad</key>
        <true/>
@@ -146,9 +155,104 @@ server {
    launchctl load ~/Library/LaunchAgents/com.obsidian2perplexity.proxy.plist
    ```
 
-## Uninstallation
+---
 
-To remove the utility:
+### Important for macOS users
+
+Binding to addresses like `127.0.0.3` and others different from `127.0.0.1` does not work on macOS by default, even if you add them to `/etc/hosts`. The system only supports `127.0.0.1` (loopback) and `0.0.0.0` (all interfaces).
+
+**Recommended:**
+- Use `--host 127.0.0.1` for local access
+- Or `--host 0.0.0.0` to listen on all interfaces
+
+Example:
+```bash
+obsidian2perplexity --host 127.0.0.1 --port 8787
+```
+
+Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the address available for binding.
+
+
+### Docker Installation
+1. **Clone the repository or download the image:**
+   - For local build:
+     ```bash
+     git clone https://githubIvanKorepin/obsidian2perplexity.git
+     cd obsidian2perplexity
+     docker build -t obsidian2perplexity .
+     ```
+
+2. **Create configuration file (optional):**
+   - Place `config.toml` or `config.dev.toml` in a convenient directory on your machine.
+
+3. **Run the container:**
+   - For production (example with config mounting and port forwarding):
+     ```bash
+     docker run -d \
+       --name obsidian2perplexity \
+       -p 8787:8787 \
+       -v /path/to/config.toml:/app/config.toml \
+       obsidian2perplexity
+     ```
+   - For development (with live reload, if supported):
+     ```bash
+     docker-compose -f docker-compose.dev.yml up
+     ```
+   - You can specify launch parameters directly:
+     ```bash
+     docker run -d \
+       --name obsidian2perplexity \
+       -p 8080:8080 \
+       obsidian2perplexity --host 0.0.0.0 --port 8080
+     ```
+
+4. **Check functionality:**
+   - Open in browser: [http://localhost:8787](http://localhost:8787) (or the port you specified).
+
+**Notes:**
+- For SSL certificates use volume mounting:
+  ```bash
+  -v /path/to/fullchain.pem:/app/fullchain.pem
+  -v /path/to/privkey.pem:/app/privkey.pem
+  ```
+  and add parameters `--ssl-cert /app/fullchain.pem --ssl-key /app/privkey.pem` to the launch command.
+- For environment variable configuration use `--env-file` flag or `-e`.
+
+**Example docker-compose.yml:**
+```yaml
+version: "3"
+services:
+  obsidian2perplexity:
+    image: obsidian2perplexity
+    ports:
+      - "8787:8787"
+    volumes:
+      - ./config.toml:/app/config.toml
+    restart: unless-stopped
+```
+
+## Running and Debugging in Devcontainer
+
+If you use [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (e.g., via VS Code), setting up and running obsidian2perplexity for development and debugging is maximally simplified:
+
+1. **Open project in VS Code** — if `.devcontainer` folder exists, the editor will suggest opening the project in a container.
+2. **Devcontainer will automatically install dependencies** and activate virtual environment.
+3. **Running server for debugging:**
+   - Open terminal inside the container.
+   - Start server with live reload (if supported):
+     ```bash
+     uvicorn obsidian2perplexity.main:app --reload --host 0.0.0.0 --port 8787
+     ```
+     or use your launch command.
+   - For passing environment variables or configs use volume mounting or `.env` files.
+4. **Port forwarding:**  
+   Devcontainer automatically forwards ports specified in `.devcontainer/devcontainer.json` (e.g., 8787). You'll be able to open the server in host browser at [http://localhost:8787](http://localhost:8787).
+5. **Code debugging:**  
+   You can use VS Code's built-in Python debugger — set breakpoints and run debugging session.
+
+
+
+## Uninstallation
 
 - **pip (any OS):**
   ```bash
@@ -166,5 +270,7 @@ To remove the utility:
     ```
 - **Devcontainer (VS Code):**
   - Remove the devcontainer from the VS Code UI or delete the `.devcontainer` folder.
+
+For more details, see your platform's package and container management documentation.
 
 For more details, see your platform's package and container management documentation.
