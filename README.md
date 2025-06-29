@@ -48,7 +48,7 @@ After installation, the command `obsidian2perplexity` will be available in your 
 3. Install the Copilot plugin for Obsidian according to the [official documentation](https://github.com/logancyang/obsidian-copilot)
 
 4. Go to plugin settings
-![Go to settings](/docs/img/copilot_configure_step1_eg.png)
+![Go to settings](/docs/img/copilot_configure_step1_eng.png)
 
 5. Go to the Model tab
 ![Model tab](/docs/img/copilot_configure_step2_eng.png)
