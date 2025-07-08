@@ -1,7 +1,7 @@
 # Project Backlog & Recommendations
 
 ## 1. Project Structure
-- Keep all source code in a dedicated package directory (e.g., `obsidian2perplexity/`).
+- Keep all source code in a dedicated package directory (e.g., `obsidian-ai-bridge/`).
 - Place tests in a separate `tests/` directory.
 - Use `requirements.txt` for dev/CI dependencies, and `setup.py` for package dependencies.
 

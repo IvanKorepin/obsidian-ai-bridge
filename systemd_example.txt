@@ -1,14 +1,14 @@
 # Для автозапуска демона при старте системы создайте systemd unit-файл:
 
-# /etc/systemd/system/obsidian2perplexity.service
+# /etc/systemd/system/obsidian-ai-bridge.service
 [Unit]
-Description=Obsidian2Perplexity Proxy Service
+Description=Obsidian AI Bridge Proxy Service
 After=network.target
 
 [Service]
 Type=simple
 User=youruser
-ExecStart=/usr/local/bin/obsidian2perplexity /path/to/your/config.toml
+ExecStart=/usr/local/bin/obsidian-ai-bridge /path/to/your/config.toml
 Restart=on-failure
 
 [Install]
@@ -16,5 +16,5 @@ WantedBy=multi-user.target
 
 # После создания файла выполните:
 # sudo systemctl daemon-reload
-# sudo systemctl enable obsidian2perplexity
-# sudo systemctl start obsidian2perplexity
+# sudo systemctl enable obsidian-ai-bridge
+# sudo systemctl start obsidian-ai-bridge

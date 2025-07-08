@@ -1,16 +1,16 @@
-# Руководство по настройке obsidian2perplexity
+# Руководство по настройке obsidian-ai-bridge
 
-В obsidian2perplexity есть два способа конфигурирования:
+В obsidian-ai-bridge есть два способа конфигурирования:
 
 1. **Через параметры командной строки**: вы можете указать host, port, ssl-cert и ssl-key прямо при запуске утилиты:
    ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+   obsidian-ai-bridge --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
    ```
    Если вы не указываете эти параметры, будут использованы значения из конфигурационного файла или значения по умолчанию.
 
 2. **Через конфигурационный файл**: создайте файл `config.toml` (или `config.dev.toml`) в рабочей директории. Путь к файлу можно указать как позиционный аргумент после названия пакета:
    ```bash
-   obsidian2perplexity config.default.toml
+   obsidian-ai-bridge config.default.toml
    ```
    Если путь не указан, утилита будет искать `config.toml` в текущей директории и в директории пакета.
 
@@ -33,7 +33,7 @@
 
 **Рекомендуется для продакшена.** 
 
-Этот метод является наиболее безопасным т.к., с одной стороны, он использует шифрование SSL, а с другой - не требует предоставлять приложению obsidian2perplexity доступ к вашему сертификату и закрытому ключу SSL.
+Этот метод является наиболее безопасным т.к., с одной стороны, он использует шифрование SSL, а с другой - не требует предоставлять приложению obsidian-ai-bridge доступ к вашему сертификату и закрытому ключу SSL.
 
 Прокси работает только по HTTP, а SSL-терминация осуществляется через внешний reverse proxy (например, Nginx).
 
@@ -48,7 +48,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/ваш-домен.рф/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8787;  # укажите здесь порт, на который настроен obsidian2perplexity
+        proxy_pass http://127.0.0.1:8787;  # укажите здесь порт, на который настроен obsidian-ai-bridge
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -58,18 +58,18 @@ server {
 ```
 ### Запуск прокси без SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8787 # Укажите здесь порт, на который настроен Ваш reverse proxy
+  obsidian-ai-bridge --host 127.0.0.1 --port 8787 # Укажите здесь порт, на который настроен Ваш reverse proxy
   ```
 
 ## 2. Запуск на удалённом сервере с SSL (без reverse proxy)
 
-Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
+Obsidian AI Bridge сам обрабатывает HTTPS-соединения.
 Необходимо указать пути к SSL-сертификату и приватному ключу (PEM) и убедиться, что пользователь, от имени которого запускается утилита, имеет права на чтение этих файлов.
 
 **Внимание:** запуск прокси с прямым доступом к SSL-сертификатам менее безопасен, чем через reverse proxy. Используйте только если понимаете риски.
 Пример:
   ```bash
-  obsidian2perplexity --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+  obsidian-ai-bridge --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
   ```
 Проверьте, что файлы сертификата и ключа доступны на чтение пользователю, запускающему прокси.
 
@@ -77,7 +77,7 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
 
 Для локального использования можно запускать прокси без SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8080
+  obsidian-ai-bridge --host 127.0.0.1 --port 8080
   ```
 В настройках плагина Copilot на шаге 8 укажите endpoint: `http://127.0.0.1:8787`
 
@@ -88,19 +88,19 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
 ## Linux
 1. **Установка:**
    ```bash
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Автозапуск (systemd):**
-   Создайте файл `/etc/systemd/system/obsidian2perplexity.service`:
+   Создайте файл `/etc/systemd/system/obsidian-ai-bridge.service`:
    ```ini
    [Unit]
-   Description=Obsidian2Perplexity Proxy
+   Description=Obsidian AI Bridge Proxy
    After=network.target
 
    [Service]
 
    # Пример запуска на адресе http://127.0.0.1:8787
-   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8787
+   ExecStart=/usr/local/bin/obsidian-ai-bridge --host 127.0.0.1 --port 8787
 
    Restart=always
    User=youruser
@@ -111,22 +111,22 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
    Затем выполните:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable obsidian2perplexity
-   sudo systemctl start obsidian2perplexity
+   sudo systemctl enable obsidian-ai-bridge
+   sudo systemctl start obsidian-ai-bridge
    ```
 
 ## Windows
 1. **Установка:**
    ```powershell
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Автозапуск:**
-   - Создайте ярлык для запуска `obsidian2perplexity` и поместите его в папку автозагрузки, либо используйте Task Scheduler для запуска при входе в систему.
+   - Создайте ярлык для запуска `obsidian-ai-bridge` и поместите его в папку автозагрузки, либо используйте Task Scheduler для запуска при входе в систему.
 
 ## macOS
 1. **Установка:**
    ```bash
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Автозапуск (launchd):**
    - Создайте файл plist в `~/Library/LaunchAgents/` для запуска прокси при входе в систему. Пример:
@@ -136,10 +136,10 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
    <plist version="1.0">
    <dict>
        <key>Label</key>
-       <string>com.obsidian2perplexity.proxy</string>
+       <string>com.obsidian-ai-bridge.proxy</string>
        <key>ProgramArguments</key>
        <array>
-           <string>/usr/local/bin/obsidian2perplexity</string>
+           <string>/usr/local/bin/obsidian-ai-bridge</string>
            <string>--host</string>
            <string>127.0.0.1</string>
            <string>--port</string>
@@ -152,7 +152,7 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
    ```
    Затем загрузите его:
    ```bash
-   launchctl load ~/Library/LaunchAgents/com.obsidian2perplexity.proxy.plist
+   launchctl load ~/Library/LaunchAgents/com.obsidian-ai-bridge.proxy.plist
    ```
 
 ---
@@ -167,7 +167,7 @@ Obsidian2Perplexity сам обрабатывает HTTPS-соединения.
 
 Пример:
 ```bash
-obsidian2perplexity --host 127.0.0.1 --port 8787
+obsidian-ai-bridge --host 127.0.0.1 --port 8787
 ```
 
 Добавление `127.0.0.3` в `/etc/hosts` влияет только на DNS, но не делает адрес доступным для bind.
@@ -177,9 +177,9 @@ obsidian2perplexity --host 127.0.0.1 --port 8787
 1. **Склонируйте репозиторий или скачайте образ:**
    - Для локальной сборки:
      ```bash
-     git clone https://github.com/IvanKorepin/obsidian2perplexity.git
-     cd obsidian2perplexity
-     docker build -t obsidian2perplexity .
+     git clone https://github.com/IvanKorepin/obsidian-ai-bridge.git
+     cd obsidian-ai-bridge
+     docker build -t obsidian-ai-bridge .
      ```
 
 2. **Создайте файл конфигурации (опционально):**
@@ -189,10 +189,10 @@ obsidian2perplexity --host 127.0.0.1 --port 8787
    - Для продакшена (пример с монтированием конфига и пробросом порта):
      ```bash
      docker run -d \
-       --name obsidian2perplexity \
+       --name obsidian-ai-bridge \
        -p 8787:8787 \
        -v /path/to/config.toml:/app/config.toml \
-       obsidian2perplexity
+       obsidian-ai-bridge
      ```
    - Для разработки (с live reload, если поддерживается):
      ```bash
@@ -201,9 +201,9 @@ obsidian2perplexity --host 127.0.0.1 --port 8787
    - Можно указать параметры запуска напрямую:
      ```bash
      docker run -d \
-       --name obsidian2perplexity \
+       --name obsidian-ai-bridge \
        -p 8080:8080 \
-       obsidian2perplexity --host 0.0.0.0 --port 8080
+       obsidian-ai-bridge --host 0.0.0.0 --port 8080
      ```
 
 4. **Проверьте работу:**
@@ -222,8 +222,8 @@ obsidian2perplexity --host 127.0.0.1 --port 8787
 ```yaml
 version: "3"
 services:
-  obsidian2perplexity:
-    image: obsidian2perplexity
+  obsidian-ai-bridge:
+    image: obsidian-ai-bridge
     ports:
       - "8787:8787"
     volumes:
@@ -233,7 +233,7 @@ services:
 
 ## Запуск и отладка в Devcontainer
 
-Если вы используете [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (например, через VS Code), настройка и запуск obsidian2perplexity для разработки и отладки максимально упрощены:
+Если вы используете [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (например, через VS Code), настройка и запуск obsidian-ai-bridge для разработки и отладки максимально упрощены:
 
 1. **Откройте проект в VS Code** — при наличии `.devcontainer` папки редактор предложит открыть проект в контейнере.
 2. **Devcontainer автоматически установит зависимости** и активирует виртуальное окружение.
@@ -241,7 +241,7 @@ services:
    - Откройте терминал внутри контейнера.
    - Запустите сервер с live reload (если поддерживается):
      ```bash
-     uvicorn obsidian2perplexity.main:app --reload --host 0.0.0.0 --port 8787
+     uvicorn obsidian-ai-bridge.main:app --reload --host 0.0.0.0 --port 8787
      ```
      или используйте вашу команду запуска.
    - Для передачи переменных окружения или конфигов используйте volume-монтирование или `.env` файлы.
@@ -256,16 +256,16 @@ services:
 
 - **pip (любая ОС):**
   ```bash
-  pip uninstall obsidian2perplexity
+  pip uninstall obsidian-ai-bridge
   ```
 - **Docker:**
   - Удалить образ:
     ```bash
-    docker rmi obsidian2perplexity
+    docker rmi obsidian-ai-bridge
     ```
   - Удалить контейнеры (если есть):
     ```bash
-    docker ps -a | grep obsidian2perplexity
+    docker ps -a | grep obsidian-ai-bridge
     docker rm <container_id>
     ```
 - **Devcontainer (VS Code):**

@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="obsidian2perplexity",
-    version="0.1.0",
-    description="Proxy server for relaying requests from " \
-    "Obsidian AI chat plugin to Perplexity with CORS support.",
+    name="obsidian-ai-bridge",
+    version="0.4.0",
+    description="Universal AI proxy server supporting multiple AI services (Perplexity, Gemini) for Obsidian Copilot",
     long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/IvanKorepin/obsidian2perplexity",
+    url="https://github.com/IvanKorepin/obsidian-ai-bridge",
     author="Ivan Korepin",
     author_email="korepin404r@gmail.com",
     classifiers=[
@@ -24,11 +23,11 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "obsidian2perplexity=obsidian2perplexity.cli:main"
+            "obsidian-ai-bridge=obsidian_ai_bridge.cli:main"
         ]
     },
     package_data={
-        "obsidian2perplexity": ["config.default.toml"],
+        "obsidian_ai_bridge": ["config.default.toml"],
     },
     include_package_data=True,
     python_requires=">=3.8",

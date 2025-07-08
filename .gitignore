@@ -2,6 +2,14 @@
 # .env files
 .env
 
+# Development and debugging files
+proxy_debug.log
+*_old.py
+*_simple.py
+*_new.py
+test_*.py
+monitor_logs.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
