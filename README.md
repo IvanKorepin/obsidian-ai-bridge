@@ -1,82 +1,137 @@
-<h1 style="text-align: center;"> Obsidian to Perplexity Proxy </h1>
+<h1 style="text-align: center;"> Obsidian AI Bridge </h1>
 
-**Works with the [Obsidian Copilot plugin](https://github.com/logancyang/obsidian-copilot).**
+**Universal AI proxy server for Obsidian Copilot plugin**
 
 **Russian version:** [README.rus.md](README.rus.md)
 
 ## What it does
 
-The Copilot plugin for Obsidian allows you to connect to APIs of many popular AI services, such as OpenAI, Gemini, DeepSeek, and others. Naturally, provided that you have a subscription to these models and the corresponding API tokens.
-Unfortunately, the plugin does not support the popular Perplexity service.
-Obsidian2Perplexity solves this problem. O2P is a simple and lightweight proxy server that sits between Obsidian-Copilot and Perplexity, transforming the headers of your HTTPS requests so that they are understood by the Perplexity API and returns responses.
+The Copilot plugin for Obsidian allows you to connect to APIs of many popular AI services, such as OpenAI, DeepSeek, and others. However, some popular services like Perplexity and Google Gemini are not directly supported due to API differences and CORS restrictions.
 
-O2P can be deployed on your server or hosting and provide connection from any device, or on your computer where Obsidian is running.
+**Obsidian AI Bridge** solves this problem by providing a universal proxy server that:
+- **Bridges API format differences** between Obsidian and AI services
+- **Handles CORS restrictions** that prevent direct browser connections
+- **Supports multiple AI services**: Perplexity for chat completions and Google Gemini for embeddings
+- **Transforms requests and responses** to match expected formats
 
-> **Privacy Notice:** The utility only modifies request headers and does not read, collect, or store the request body content. No user data is logged or saved.
+The proxy can be deployed on your server or locally on your computer where Obsidian is running.
+
+> **Privacy Notice:** The utility only transforms request/response formats and handles routing. No user data is logged, stored, or modified beyond format conversion.
+
+## Supported Services
+
+- **Perplexity API**: Chat completions and reasoning models
+- **Google Gemini**: Text embedding models (geographic restrictions may apply)
 
 ## Features
-- Installation on server or local machine
-- Works with or without reverse proxy
-- SSL support
-- Handles CORS for Obsidian integration
-- Configurable via TOML file
-- Docker and devcontainer support for development
+- **Universal endpoint handling**: `/perplexity/*` routes to Perplexity, `/gemini/embeddings` to Gemini
+- **pip package installation**: Easy installation and updates
+- **CLI interface**: Simple command-line configuration
+- **Flexible deployment**: Local, server, or containerized
+- **SSL support**: HTTPS with custom certificates
+- **CORS handling**: Full cross-origin request support
+- **Configurable**: TOML configuration files
+- **Logging**: Detailed request/response logging for debugging
 
 ## Installation
 
 Install the utility from PyPI:
 ```bash
-pip install obsidian2perplexity
+pip install obsidian-ai-bridge
 ```
 
-After installation, the command `obsidian2perplexity` will be available in your terminal.
+After installation, the command `obsidian-ai-bridge` will be available in your terminal.
 
 ## Quick Start (Local)
 
-1. Install the package:
+1. **Install the package:**
    ```bash
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 
-2. Run the server:
+2. **Run the server:**
    ```bash
-   obsidian2perplexity --host 127.0.0.1 --port 8787
+   # Basic usage (defaults to localhost:8000)
+   obsidian-ai-bridge
+   
+   # Custom host and port
+   obsidian-ai-bridge --host 127.0.0.1 --port 8787
+   
+   # With SSL certificates
+   obsidian-ai-bridge --host 0.0.0.0 --port 443 --ssl-cert cert.pem --ssl-key key.pem
    ```
+
+3. **Available endpoints:**
+   - `POST /perplexity/*` - Proxies to Perplexity API (all paths supported)
+   - `POST /gemini/embeddings` - Proxies to Google Gemini Embedding API
+   - `GET /health` - Health check endpoint
 
 > See [documentation](docs/configuration.md) for more detailed installation and configuration instructions for different environments (Linux, Windows, macOS, Docker, devcontainer).
 
-3. Install the Copilot plugin for Obsidian according to the [official documentation](https://github.com/logancyang/obsidian-copilot)
+## Configuration with Obsidian Copilot
 
-4. Go to plugin settings
+### For Perplexity (Chat Models)
+
+1. Install the Copilot plugin for Obsidian according to the [official documentation](https://github.com/logancyang/obsidian-copilot)
+
+2. Go to plugin settings
 ![Go to settings](/docs/img/copilot_configure_step1_eng.png)
 
-5. Go to the Model tab
+3. Go to the Model tab
 ![Model tab](/docs/img/copilot_configure_step2_eng.png)
 
-6. Scroll down to the end of the pre-installed models
+4. Scroll down to the end of the pre-installed models
 
-7. Click the "Add custom model" button
+5. Click the "Add custom model" button
 ![Model tab](/docs/img/copilot_configure_step3_eng.png)
 
-8. Fill out the form
+6. **Configure Perplexity model:**
 ![Model form](/docs/img/copilot_configure_step4.png)
-   1) Perplexity model name ([List of available models according to Perplexity](https://www.perplexity.ai/search/what-models-does-the-perplexity-api-support-MCb_.seRSF2SbY91Wh6QjQ))
-   2) Select "Open AI Format"
-   3) Host parameters where Obsidian2Perplexity is deployed
-      3.1) For local installation ```http://localhost:8787/```
-      3.2) For server installation ```https://YOUR_IP_ADDRESS:8787```
+   1) **Model name**: Choose from [available Perplexity models](https://docs.perplexity.ai/docs/model-cards) (e.g., `llama-3.1-sonar-small-128k-online`, `llama-3.1-sonar-large-128k-online`)
+   2) **Format**: Select "Open AI Format"
+   3) **Host URL**: 
+      - Local: `http://localhost:8787/perplexity`
+      - Server: `https://YOUR_DOMAIN/ai/perplexity`
+   4) **API Token**: Your Perplexity API key from [perplexity.ai](https://www.perplexity.ai/settings/api)
+   5) **Enable CORS**: ✅ Check this option
+   6) **Click "Verify"** to test the connection
 
-      > **Note 1:** Host address and port can be set when launching the utility ```obsidian2perplexity --host YOUR_IP --port YOUR_PORT```
+### For Google Gemini (Embedding Models)
 
-      > **Note 2:** Make sure the selected port is open for connections.
-      
-   4) Enter your API token from your Perplexity account
+7. **Add Gemini Embedding model:**
+   1) **Model name**: `text-embedding-004` or other [Gemini embedding models](https://ai.google.dev/gemini-api/docs/embeddings)
+   2) **Format**: Select "Open AI Format"  
+   3) **Host URL**:
+      - Local: `http://localhost:8787/gemini`
+      - Server: `https://YOUR_DOMAIN/ai/gemini`
+   4) **API Token**: Your Google AI API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+   5) **Enable CORS**: ✅ Check this option
+   6) **Click "Verify"** to test the connection
 
-   5) Check "Enable CORS"
-   6) Click "Verify" to make sure everything works. If configured correctly, a success message will appear in the corner of the screen
+> **Note:** Google Gemini API may be restricted in some regions (e.g., Russia). Use VPN if needed.
+
+8. **Success confirmation:**
    ![Successful connection](/docs/img/copilot_configure_success.png)
 
-   Congratulations! Your system is now successfully configured
+   Congratulations! Your system is now successfully configured for both chat and embedding models.
+
+## Command Line Options
+
+```bash
+obsidian-ai-bridge [OPTIONS] [CONFIG_PATH]
+
+Options:
+  --host TEXT      Host to bind (default: localhost)
+  --port INTEGER   Port to run on (default: 8000)
+  --ssl-cert TEXT  Path to SSL certificate file
+  --ssl-key TEXT   Path to SSL key file
+  --help           Show help message
+
+Examples:
+  obsidian-ai-bridge                                    # Run on localhost:8000
+  obsidian-ai-bridge --host 0.0.0.0 --port 8787       # Custom host/port
+  obsidian-ai-bridge config.toml --host 0.0.0.0       # Use config file
+```
 
 ## Configuration
 
@@ -89,7 +144,7 @@ MIT
 
 - **pip (any OS):**
   ```bash
-  pip uninstall obsidian2perplexity
+  pip uninstall obsidian-ai-bridge
   ```
 
 

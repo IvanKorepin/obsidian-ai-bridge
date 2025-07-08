@@ -1,10 +1,12 @@
-# Default configuration file for obsidian2perplexity
+# Default configuration file for obsidian-ai-bridge
 
 [routing]
-# The API endpoint for Perplexity's chat completions.
+# API endpoints for different AI services
 PERPLEXITY_API_URL = "https://api.perplexity.ai/chat/completions"
+# {model} will be replaced with actual model name from request
+GEMINI_EMBEDDING_API_URL = "https://generativelanguage.googleapis.com/v1/models/{model}:embedText"
 
-# Specifies the origins allowed for CORS requests, ensuring compatibility between Obsidian and Perplexity.
+# Specifies the origins allowed for CORS requests, ensuring compatibility between Obsidian and different AI services.
 ALLOWED_ORIGINS = "app://obsidian.md"
 
 [server]

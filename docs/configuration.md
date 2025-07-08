@@ -1,16 +1,16 @@
-# Configuration Guide for obsidian2perplexity
+# Configuration Guide for obsidian-ai-bridge
 
-obsidian2perplexity has two ways of configuration:
+obsidian-ai-bridge has two ways of configuration:
 
 1. **Via command line parameters**: you can specify host, port, ssl-cert and ssl-key directly when launching the utility:
    ```bash
-   obsidian2perplexity --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+   obsidian-ai-bridge --host 0.0.0.0 --port 8080 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
    ```
    If you don't specify these parameters, values from the configuration file or default values will be used.
 
 2. **Via configuration file**: create a `config.toml` file (or `config.dev.toml`) in the working directory. The file path can be specified as a positional argument after the package name:
    ```bash
-   obsidian2perplexity config.default.toml
+   obsidian-ai-bridge config.default.toml
    ```
    If the path is not specified, the utility will search for `config.toml` in the current directory and in the package directory.
 
@@ -33,7 +33,7 @@ obsidian2perplexity has two ways of configuration:
 
 **Recommended for production.**
 
-This method is the most secure because, on one hand, it uses SSL encryption, and on the other hand, it doesn't require giving the obsidian2perplexity application access to your SSL certificate and private key.
+This method is the most secure because, on one hand, it uses SSL encryption, and on the other hand, it doesn't require giving the obsidian-ai-bridge application access to your SSL certificate and private key.
 
 The proxy works only via HTTP, and SSL termination is handled by an external reverse proxy (e.g., Nginx).
 
@@ -48,7 +48,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/your-domain.com/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:8787;  # specify the port configured for obsidian2perplexity here
+        proxy_pass http://127.0.0.1:8787;  # specify the port configured for obsidian-ai-bridge here
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -58,18 +58,18 @@ server {
 ```
 ### Start the proxy without SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8787 # Specify the port configured for your reverse proxy here
+  obsidian-ai-bridge --host 127.0.0.1 --port 8787 # Specify the port configured for your reverse proxy here
   ```
 
 ## 2. Running on a Remote Server With SSL (Without Reverse Proxy)
 
-Obsidian2Perplexity itself handles HTTPS connections.
+Obsidian AI Bridge itself handles HTTPS connections.
 You must provide paths to your SSL certificate and private key (PEM format) and ensure the user running the utility has read access to these files.
 
 **Warning:** Running the proxy with direct access to SSL certificates is less secure than using a reverse proxy. Use only if you understand the risks.
 Example:
   ```bash
-  obsidian2perplexity --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
+  obsidian-ai-bridge --host 0.0.0.0 --port 8787 --ssl-cert /path/to/fullchain.pem --ssl-key /path/to/privkey.pem
   ```
 Make sure the certificate and key files are readable by the user running the proxy.
 
@@ -77,7 +77,7 @@ Make sure the certificate and key files are readable by the user running the pro
 
 For local use, you can run the proxy without SSL:
   ```bash
-  obsidian2perplexity --host 127.0.0.1 --port 8080
+  obsidian-ai-bridge --host 127.0.0.1 --port 8080
   ```
 In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:8787`
 
@@ -88,19 +88,19 @@ In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:87
 ## Linux
 1. **Installation:**
    ```bash
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Autostart (systemd):**
-   Create file `/etc/systemd/system/obsidian2perplexity.service`:
+   Create file `/etc/systemd/system/obsidian-ai-bridge.service`:
    ```ini
    [Unit]
-   Description=Obsidian2Perplexity Proxy
+   Description=Obsidian AI Bridge Proxy
    After=network.target
 
    [Service]
 
    # Example launch on address http://127.0.0.1:8787
-   ExecStart=/usr/local/bin/obsidian2perplexity --host 127.0.0.1 --port 8787
+   ExecStart=/usr/local/bin/obsidian-ai-bridge --host 127.0.0.1 --port 8787
 
    Restart=always
    User=youruser
@@ -111,22 +111,22 @@ In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:87
    Then run:
    ```bash
    sudo systemctl daemon-reload
-   sudo systemctl enable obsidian2perplexity
-   sudo systemctl start obsidian2perplexity
+   sudo systemctl enable obsidian-ai-bridge
+   sudo systemctl start obsidian-ai-bridge
    ```
 
 ## Windows
 1. **Installation:**
    ```powershell
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Autostart:**
-   - Create a shortcut to run `obsidian2perplexity` and place it in the Startup folder, or use Task Scheduler to run the command at login.
+   - Create a shortcut to run `obsidian-ai-bridge` and place it in the Startup folder, or use Task Scheduler to run the command at login.
 
 ## macOS
 1. **Installation:**
    ```bash
-   pip install obsidian2perplexity
+   pip install obsidian-ai-bridge
    ```
 2. **Autostart (launchd):**
    - Create a `plist` file in `~/Library/LaunchAgents/` to run the proxy at login. Example:
@@ -136,10 +136,10 @@ In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:87
    <plist version="1.0">
    <dict>
        <key>Label</key>
-       <string>com.obsidian2perplexity.proxy</string>
+       <string>com.obsidian-ai-bridge.proxy</string>
        <key>ProgramArguments</key>
        <array>
-           <string>/usr/local/bin/obsidian2perplexity</string>
+           <string>/usr/local/bin/obsidian-ai-bridge</string>
            <string>--host</string>
            <string>127.0.0.1</string>
            <string>--port</string>
@@ -152,7 +152,7 @@ In the Copilot plugin settings at step 8, specify endpoint: `http://127.0.0.1:87
    ```
    Then load it with:
    ```bash
-   launchctl load ~/Library/LaunchAgents/com.obsidian2perplexity.proxy.plist
+   launchctl load ~/Library/LaunchAgents/com.obsidian-ai-bridge.proxy.plist
    ```
 
 ---
@@ -167,7 +167,7 @@ Binding to addresses like `127.0.0.3` and others different from `127.0.0.1` does
 
 Example:
 ```bash
-obsidian2perplexity --host 127.0.0.1 --port 8787
+obsidian-ai-bridge --host 127.0.0.1 --port 8787
 ```
 
 Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the address available for binding.
@@ -177,9 +177,9 @@ Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the addre
 1. **Clone the repository or download the image:**
    - For local build:
      ```bash
-     git clone https://githubIvanKorepin/obsidian2perplexity.git
-     cd obsidian2perplexity
-     docker build -t obsidian2perplexity .
+     git clone https://githubIvanKorepin/obsidian-ai-bridge.git
+     cd obsidian-ai-bridge
+     docker build -t obsidian-ai-bridge .
      ```
 
 2. **Create configuration file (optional):**
@@ -189,10 +189,10 @@ Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the addre
    - For production (example with config mounting and port forwarding):
      ```bash
      docker run -d \
-       --name obsidian2perplexity \
+       --name obsidian-ai-bridge \
        -p 8787:8787 \
        -v /path/to/config.toml:/app/config.toml \
-       obsidian2perplexity
+       obsidian-ai-bridge
      ```
    - For development (with live reload, if supported):
      ```bash
@@ -201,9 +201,9 @@ Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the addre
    - You can specify launch parameters directly:
      ```bash
      docker run -d \
-       --name obsidian2perplexity \
+       --name obsidian-ai-bridge \
        -p 8080:8080 \
-       obsidian2perplexity --host 0.0.0.0 --port 8080
+       obsidian-ai-bridge --host 0.0.0.0 --port 8080
      ```
 
 4. **Check functionality:**
@@ -222,8 +222,8 @@ Adding `127.0.0.3` to `/etc/hosts` only affects DNS, but does not make the addre
 ```yaml
 version: "3"
 services:
-  obsidian2perplexity:
-    image: obsidian2perplexity
+  obsidian-ai-bridge:
+    image: obsidian-ai-bridge
     ports:
       - "8787:8787"
     volumes:
@@ -233,7 +233,7 @@ services:
 
 ## Running and Debugging in Devcontainer
 
-If you use [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (e.g., via VS Code), setting up and running obsidian2perplexity for development and debugging is maximally simplified:
+If you use [Devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) (e.g., via VS Code), setting up and running obsidian-ai-bridge for development and debugging is maximally simplified:
 
 1. **Open project in VS Code** — if `.devcontainer` folder exists, the editor will suggest opening the project in a container.
 2. **Devcontainer will automatically install dependencies** and activate virtual environment.
@@ -241,7 +241,7 @@ If you use [Devcontainer](https://code.visualstudio.com/docs/devcontainers/conta
    - Open terminal inside the container.
    - Start server with live reload (if supported):
      ```bash
-     uvicorn obsidian2perplexity.main:app --reload --host 0.0.0.0 --port 8787
+     uvicorn obsidian-ai-bridge.main:app --reload --host 0.0.0.0 --port 8787
      ```
      or use your launch command.
    - For passing environment variables or configs use volume mounting or `.env` files.
@@ -256,16 +256,16 @@ If you use [Devcontainer](https://code.visualstudio.com/docs/devcontainers/conta
 
 - **pip (any OS):**
   ```bash
-  pip uninstall obsidian2perplexity
+  pip uninstall obsidian-ai-bridge
   ```
 - **Docker:**
   - Remove the image:
     ```bash
-    docker rmi obsidian2perplexity
+    docker rmi obsidian-ai-bridge
     ```
   - Remove containers (if any):
     ```bash
-    docker ps -a | grep obsidian2perplexity
+    docker ps -a | grep obsidian-ai-bridge
     docker rm <container_id>
     ```
 - **Devcontainer (VS Code):**
